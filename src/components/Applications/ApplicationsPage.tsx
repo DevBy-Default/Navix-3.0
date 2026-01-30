@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import { Building2, MapPin, DollarSign, Clock, ExternalLink, CheckCircle, Send, Star } from 'lucide-react';
 import { jobs } from '../../data/mockData';
-import { Job } from '../../types';
 import { motion } from 'framer-motion';
 
 const ApplicationsPage = () => {
   const [filter, setFilter] = useState<'all' | 'applied' | 'not-applied'>('all');
   const [sortBy, setSortBy] = useState<'match' | 'salary' | 'company'>('match');
+  const [savedJobs, setSavedJobs] = useState<string[]>([]);
+  const [autoApplyEnabled, setAutoApplyEnabled] = useState(false);
 
   const filteredJobs = jobs.filter(job => {
     if (filter === 'applied') return job.applied;
@@ -21,8 +22,41 @@ const ApplicationsPage = () => {
   });
 
   const handleQuickApply = (jobId: string) => {
-    // Simulate quick apply
-    console.log(`Applying to job ${jobId}`);
+    // Simulate quick apply - update job status
+    const jobIndex = jobs.findIndex(job => job.id === jobId);
+    if (jobIndex !== -1) {
+      jobs[jobIndex].applied = true;
+      alert(`Successfully applied to ${jobs[jobIndex].title} at ${jobs[jobIndex].company}!`);
+    }
+  };
+
+  const handleSaveJob = (jobId: string) => {
+    if (savedJobs.includes(jobId)) {
+      setSavedJobs(savedJobs.filter(id => id !== jobId));
+      alert('Job removed from saved jobs');
+    } else {
+      setSavedJobs([...savedJobs, jobId]);
+      alert('Job saved successfully!');
+    }
+  };
+
+  const handleViewDetails = (jobId: string) => {
+    const job = jobs.find(j => j.id === jobId);
+    if (job) {
+      alert(`Job Details:\n\nTitle: ${job.title}\nCompany: ${job.company}\nLocation: ${job.location}\nType: ${job.type}\nSalary: ${job.salary}\n\nSkills Required: ${job.skills.join(', ')}\n\nMatch Score: ${job.matchScore}%`);
+    }
+  };
+
+  const handleCustomApply = (jobId: string) => {
+    const job = jobs.find(j => j.id === jobId);
+    if (job) {
+      alert(`Custom application for ${job.title} at ${job.company} is being prepared. Our AI will help you create a personalized cover letter and resume.`);
+    }
+  };
+
+  const handleSetupAutoApply = () => {
+    setAutoApplyEnabled(!autoApplyEnabled);
+    alert(autoApplyEnabled ? 'Auto Apply has been disabled' : 'Auto Apply has been enabled! Our AI agent will now automatically apply to matching jobs.');
   };
 
   const getMatchColor = (score: number) => {
@@ -71,17 +105,17 @@ const ApplicationsPage = () => {
         <div className="flex items-center space-x-4">
           <select
             value={filter}
-            onChange={(e) => setFilter(e.target.value as any)}
+            onChange={(e) => setFilter(e.target.value as 'all' | 'applied' | 'not-applied')}
             className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
           >
             <option value="all">All Jobs</option>
             <option value="applied">Applied</option>
             <option value="not-applied">Not Applied</option>
           </select>
-          
+
           <select
             value={sortBy}
-            onChange={(e) => setSortBy(e.target.value as any)}
+            onChange={(e) => setSortBy(e.target.value as 'match' | 'salary' | 'company')}
             className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
           >
             <option value="match">Best Match</option>
@@ -116,8 +150,11 @@ const ApplicationsPage = () => {
               Let our AI agent apply to jobs automatically with customized cover letters and resume optimization.
             </p>
           </div>
-          <button className="bg-gradient-to-r from-blue-600 to-emerald-600 text-white px-6 py-2 rounded-lg font-medium hover:from-blue-700 hover:to-emerald-700 transition-all">
-            Setup Auto Apply
+          <button
+            onClick={handleSetupAutoApply}
+            className={`px-6 py-2 rounded-lg font-medium transition-all ${autoApplyEnabled ? 'bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white' : 'bg-gradient-to-r from-blue-600 to-emerald-600 hover:from-blue-700 hover:to-emerald-700 text-white'}`}
+          >
+            {autoApplyEnabled ? 'Disable Auto Apply' : 'Setup Auto Apply'}
           </button>
         </div>
       </motion.div>
@@ -200,19 +237,28 @@ const ApplicationsPage = () => {
             {/* Actions */}
             <div className="flex items-center justify-between pt-4 border-t border-gray-200 dark:border-gray-700">
               <div className="flex items-center space-x-4">
-                <button className="text-blue-600 hover:text-blue-700 font-medium text-sm flex items-center space-x-1">
+                <button
+                  onClick={() => handleViewDetails(job.id)}
+                  className="text-blue-600 hover:text-blue-700 font-medium text-sm flex items-center space-x-1"
+                >
                   <ExternalLink size={16} />
                   <span>View Details</span>
                 </button>
-                <button className="text-gray-600 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 font-medium text-sm">
-                  Save Job
+                <button
+                  onClick={() => handleSaveJob(job.id)}
+                  className={`font-medium text-sm ${savedJobs.includes(job.id) ? 'text-amber-600 hover:text-amber-700' : 'text-gray-600 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'}`}
+                >
+                  {savedJobs.includes(job.id) ? 'Saved' : 'Save Job'}
                 </button>
               </div>
 
               <div className="flex items-center space-x-3">
                 {!job.applied && (
                   <>
-                    <button className="px-4 py-2 border border-blue-600 text-blue-600 rounded-lg font-medium hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors">
+                    <button
+                      onClick={() => handleCustomApply(job.id)}
+                      className="px-4 py-2 border border-blue-600 text-blue-600 rounded-lg font-medium hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
+                    >
                       Custom Apply
                     </button>
                     <button

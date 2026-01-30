@@ -8,7 +8,7 @@ const RoadmapPage = () => {
   const [activeStep, setActiveStep] = useState<string | null>(null);
   const { user, updateUser } = useAuth();
 
-  const handleStepComplete = (stepId: string) => {
+  const handleStepComplete = () => {
     // Toggle step completion
     updateUser({
       completedSteps: (user?.completedSteps || 0) + 1
@@ -142,7 +142,7 @@ const RoadmapPage = () => {
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
-                          handleStepComplete(step.id);
+                          handleStepComplete();
                         }}
                         className="mb-4 bg-gradient-to-r from-blue-600 to-emerald-600 text-white px-4 py-2 rounded-lg font-medium hover:from-blue-700 hover:to-emerald-700 transition-all"
                       >

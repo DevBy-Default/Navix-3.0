@@ -19,8 +19,10 @@ const DashboardHome = () => {
       if (!user?.id) return;
       try {
         const r = await getLatestPsychometric(user.id);
-        if (isMounted) setPsyResult(r as any);
-      } catch {}
+        if (isMounted) setPsyResult(r);
+      } catch (error) {
+        console.error('Failed to load psychometric result:', error);
+      }
     })();
     return () => {
       isMounted = false;
@@ -205,7 +207,10 @@ const DashboardHome = () => {
               
               <div className="flex items-center justify-between text-sm">
                 <span className="text-gray-600 dark:text-gray-400">Next: Backend Development with Node.js</span>
-                <button className="text-blue-600 hover:text-blue-700 font-medium flex items-center space-x-1">
+                <button
+                  onClick={() => alert('Navigating to Backend Development with Node.js module. This would take you to the learning roadmap.')}
+                  className="text-blue-600 hover:text-blue-700 font-medium flex items-center space-x-1"
+                >
                   <span>Continue</span>
                   <ArrowRight size={16} />
                 </button>

@@ -170,7 +170,10 @@ const DomainsPage = () => {
 
                   {selectedDomain === domain.id && selectedRole === role.id && (
                     <div className="mt-4 pt-3 border-t border-gray-200 dark:border-gray-600">
-                      <button className="w-full bg-gradient-to-r from-blue-600 to-emerald-600 text-white py-2 rounded-lg font-medium hover:from-blue-700 hover:to-emerald-700 transition-all flex items-center justify-center space-x-2">
+                      <button
+                        onClick={() => alert(`Generating personalized learning roadmap for ${role.name} in ${domain.name}. This would create a custom learning path based on your selected role and current skill level.`)}
+                        className="w-full bg-gradient-to-r from-blue-600 to-emerald-600 text-white py-2 rounded-lg font-medium hover:from-blue-700 hover:to-emerald-700 transition-all flex items-center justify-center space-x-2"
+                      >
                         <span>Generate Learning Roadmap</span>
                         <ArrowRight size={16} />
                       </button>
@@ -195,7 +198,10 @@ const DomainsPage = () => {
             Take our AI-powered career assessment to discover domains that match your interests,
             strengths, and career goals. Get personalized recommendations in minutes.
           </p>
-          <button className="bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors">
+          <button
+            onClick={() => alert('Starting AI-powered career assessment. This would guide you through a series of questions to determine the best career domains for your interests, skills, and goals.')}
+            className="bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors"
+          >
             Take Career Assessment
           </button>
         </div>

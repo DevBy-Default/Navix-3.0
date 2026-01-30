@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { GraduationCap, Calendar, DollarSign, Target, ExternalLink, AlertCircle } from 'lucide-react';
 import { scholarships } from '../../data/mockData';
-import { Scholarship } from '../../types';
 import { motion } from 'framer-motion';
 
 const ScholarshipsPage = () => {
   const [filter, setFilter] = useState<'all' | 'government' | 'private' | 'international'>('all');
   const [sortBy, setSortBy] = useState<'match' | 'amount' | 'deadline'>('match');
+  const [savedScholarships, setSavedScholarships] = useState<string[]>([]);
 
   const filteredScholarships = scholarships.filter(scholarship => {
     if (filter === 'government') return scholarship.provider.includes('Government') || scholarship.provider.includes('NSP');
@@ -37,6 +37,41 @@ const ScholarshipsPage = () => {
     if (diffDays <= 30) return 'text-red-600 bg-red-100 dark:bg-red-900 dark:text-red-300';
     if (diffDays <= 60) return 'text-amber-600 bg-amber-100 dark:bg-amber-900 dark:text-amber-300';
     return 'text-green-600 bg-green-100 dark:bg-green-900 dark:text-green-300';
+  };
+
+  const handleChatWithBot = () => {
+    alert('Opening ScholarshipBot chat. This AI agent will help you with personalized scholarship guidance, application assistance, and deadline reminders.');
+  };
+
+  const handleViewDetails = (scholarshipId: string) => {
+    const scholarship = scholarships.find(s => s.id === scholarshipId);
+    if (scholarship) {
+      alert(`Scholarship Details:\n\nName: ${scholarship.name}\nProvider: ${scholarship.provider}\nAmount: ${scholarship.amount}\nDeadline: ${scholarship.deadline}\n\nEligibility: ${scholarship.eligibility.join(', ')}\n\nMatch Score: ${scholarship.matchScore}%`);
+    }
+  };
+
+  const handleSaveScholarship = (scholarshipId: string) => {
+    if (savedScholarships.includes(scholarshipId)) {
+      setSavedScholarships(savedScholarships.filter(id => id !== scholarshipId));
+      alert('Scholarship removed from saved list');
+    } else {
+      setSavedScholarships([...savedScholarships, scholarshipId]);
+      alert('Scholarship saved for later!');
+    }
+  };
+
+  const handleGetApplicationHelp = (scholarshipId: string) => {
+    const scholarship = scholarships.find(s => s.id === scholarshipId);
+    if (scholarship) {
+      alert(`Getting application help for ${scholarship.name}. ScholarshipBot will provide personalized guidance, essay reviews, and document preparation assistance.`);
+    }
+  };
+
+  const handleStartApplication = (scholarshipId: string) => {
+    const scholarship = scholarships.find(s => s.id === scholarshipId);
+    if (scholarship) {
+      alert(`Starting application for ${scholarship.name}. You'll be guided through each step of the application process.`);
+    }
   };
 
   const containerVariants = {
@@ -79,7 +114,7 @@ const ScholarshipsPage = () => {
         <div className="flex items-center space-x-4">
           <select
             value={filter}
-            onChange={(e) => setFilter(e.target.value as any)}
+            onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setFilter(e.target.value as 'all' | 'government' | 'private' | 'international')}
             className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
           >
             <option value="all">All Scholarships</option>
@@ -130,7 +165,10 @@ const ScholarshipsPage = () => {
               Get personalized application guidance, essay reviews, and deadline reminders from our AI agent.
             </p>
           </div>
-          <button className="bg-gradient-to-r from-emerald-600 to-blue-600 text-white px-6 py-2 rounded-lg font-medium hover:from-emerald-700 hover:to-blue-700 transition-all">
+          <button
+            onClick={handleChatWithBot}
+            className="bg-gradient-to-r from-emerald-600 to-blue-600 text-white px-6 py-2 rounded-lg font-medium hover:from-emerald-700 hover:to-blue-700 transition-all"
+          >
             Chat with Bot
           </button>
         </div>
@@ -219,20 +257,32 @@ const ScholarshipsPage = () => {
             {/* Actions */}
             <div className="flex items-center justify-between pt-4 border-t border-gray-200 dark:border-gray-700">
               <div className="flex items-center space-x-4">
-                <button className="text-emerald-600 hover:text-emerald-700 font-medium text-sm flex items-center space-x-1">
+                <button
+                  onClick={() => handleViewDetails(scholarship.id)}
+                  className="text-emerald-600 hover:text-emerald-700 font-medium text-sm flex items-center space-x-1"
+                >
                   <ExternalLink size={16} />
                   <span>View Details</span>
                 </button>
-                <button className="text-gray-600 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 font-medium text-sm">
-                  Save for Later
+                <button
+                  onClick={() => handleSaveScholarship(scholarship.id)}
+                  className={`font-medium text-sm ${savedScholarships.includes(scholarship.id) ? 'text-amber-600 hover:text-amber-700' : 'text-gray-600 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'}`}
+                >
+                  {savedScholarships.includes(scholarship.id) ? 'Saved' : 'Save for Later'}
                 </button>
               </div>
 
               <div className="flex items-center space-x-3">
-                <button className="px-4 py-2 border border-emerald-600 text-emerald-600 rounded-lg font-medium hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-colors">
+                <button
+                  onClick={() => handleGetApplicationHelp(scholarship.id)}
+                  className="px-4 py-2 border border-emerald-600 text-emerald-600 rounded-lg font-medium hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-colors"
+                >
                   Get Application Help
                 </button>
-                <button className="px-4 py-2 bg-gradient-to-r from-emerald-600 to-blue-600 text-white rounded-lg font-medium hover:from-emerald-700 hover:to-blue-700 transition-all">
+                <button
+                  onClick={() => handleStartApplication(scholarship.id)}
+                  className="px-4 py-2 bg-gradient-to-r from-emerald-600 to-blue-600 text-white rounded-lg font-medium hover:from-emerald-700 hover:to-blue-700 transition-all"
+                >
                   Start Application
                 </button>
               </div>
@@ -253,17 +303,32 @@ const ScholarshipsPage = () => {
           <div className="p-4 bg-white dark:bg-gray-800 rounded-lg">
             <h4 className="font-medium text-gray-900 dark:text-white mb-2">Essay Writing Guide</h4>
             <p className="text-gray-600 dark:text-gray-400 mb-3">Learn how to craft compelling scholarship essays that stand out.</p>
-            <button className="text-purple-600 hover:text-purple-700 font-medium">View Guide</button>
+            <button
+              onClick={() => alert('Opening Essay Writing Guide. This comprehensive guide covers essay structure, common prompts, and tips for writing standout scholarship essays.')}
+              className="text-purple-600 hover:text-purple-700 font-medium"
+            >
+              View Guide
+            </button>
           </div>
           <div className="p-4 bg-white dark:bg-gray-800 rounded-lg">
             <h4 className="font-medium text-gray-900 dark:text-white mb-2">Document Checklist</h4>
             <p className="text-gray-600 dark:text-gray-400 mb-3">Complete checklist of documents needed for scholarship applications.</p>
-            <button className="text-purple-600 hover:text-purple-700 font-medium">Download</button>
+            <button
+              onClick={() => alert('Downloading Document Checklist. This checklist includes all required documents, formatting guidelines, and preparation tips.')}
+              className="text-purple-600 hover:text-purple-700 font-medium"
+            >
+              Download
+            </button>
           </div>
           <div className="p-4 bg-white dark:bg-gray-800 rounded-lg">
             <h4 className="font-medium text-gray-900 dark:text-white mb-2">Interview Prep</h4>
             <p className="text-gray-600 dark:text-gray-400 mb-3">Common scholarship interview questions and how to prepare.</p>
-            <button className="text-purple-600 hover:text-purple-700 font-medium">Start Prep</button>
+            <button
+              onClick={() => alert('Starting Interview Preparation. Access practice questions, tips for virtual interviews, and strategies to impress scholarship committees.')}
+              className="text-purple-600 hover:text-purple-700 font-medium"
+            >
+              Start Prep
+            </button>
           </div>
         </div>
       </motion.div>
